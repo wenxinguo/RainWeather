@@ -1,25 +1,22 @@
 package com.dddpeter.app.rainweather;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import net.tsz.afinal.FinalActivity;
 import net.tsz.afinal.annotation.view.ViewInject;
@@ -28,14 +25,19 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.dddpeter.app.rainweather.object.SinaWeather;
+import com.dddpeter.app.rainweather.object.DistrictMapClass;
 import com.dddpeter.app.rainweather.util.FileOperator;
 import com.dddpeter.app.rainweather.util.SystemUiHider;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -93,12 +95,15 @@ public class MainActivity extends FinalActivity {
 	TextView content;
 	ProgressDialog mDialog;
 	private LocationClient mLocClient;
-	private SinaWeather weatherObject=new SinaWeather();
+	private JSONObject weatherObject=new JSONObject();
+	private JSONObject weatherObjectDetail=new JSONObject();
 	private final String DATA_PATH="/sdcard/tmp/";
-	private final String XML_NAME="sina_weather.xml";
+	private final String DATA_NAME="weather.json";
+	private final String DATA_DETAIL_NAME="weather_detail.json";
 	private Map<String, Integer> pictrueMap1;
 	private Map<String, Integer> pictrueMap2;
-
+	private Map<String, String> districtMap;
+	private BDLocation myLocation;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -238,8 +243,8 @@ public class MainActivity extends FinalActivity {
 		public void onReceiveLocation(BDLocation location) {
 			if (location == null)
 				return;
-
-			updateWeather(location.getCity());
+			myLocation=location;
+			updateWeather(location.getDistrict());
 
 		}
 
@@ -249,152 +254,134 @@ public class MainActivity extends FinalActivity {
 			if (poiLocation == null) {
 				return;
 			}
-
-			updateWeather(poiLocation.getCity());
+			myLocation=poiLocation;
+			updateWeather(poiLocation.getDistrict());
 
 		}
 
 	};
 
-	private final void updateWeather(String city) {
-		String cityStr = city.split("市")[0];
+	private final void updateWeather(String district) {
+		if(district==null || district.trim().equals("")){
+			Toast.makeText(MainActivity.this, "定位失败，请打开网络重试", Toast.LENGTH_SHORT).show();
+			setNetworkMethod(MainActivity.this);
+			return;
+		}
+		System.out.println(district);
+		String cityStr =getValidDistrictName(district);
 		
-		String resultXml = "";
-		
+		String resultJSON = "";
+		String resultJSON0 = "";
 		try {
 			Log.v("知雨天气", "获取" + cityStr + "天气");
-			final String link = "http://php.weather.sina.com.cn/xml.php?city="
-					+ java.net.URLEncoder.encode(cityStr, "gb2312")
-					+ "&password=DJOYnieT8234jlsK&day=0";
-			HttpGet httpRequest = new HttpGet(link);
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpResponse httpResponse;
-
-			httpResponse = httpclient.execute(httpRequest);
-
-			if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-				resultXml = EntityUtils.toString(httpResponse.getEntity(),
-						"UTF-8");
-				FileOperator.saveFile(resultXml, this.DATA_PATH,this.XML_NAME);
-				System.out.println(link);
-				parseXml(resultXml);
-				updateContent();
-				Toast.makeText(MainActivity.this, "天气信息同步成功", Toast.LENGTH_SHORT).show();
-			} else {
-				Log.e("知雨天气", "获取" + cityStr + "天气失败："
-						+ httpResponse.getStatusLine().getStatusCode());
-			}
-		} catch (Exception e) {
+			final String link0="http://m.weather.com.cn/data/"+districtMap.get(cityStr)+".html";
+			final String link = "http://www.weather.com.cn/data/sk/"+districtMap.get(cityStr)+".html";
+			resultJSON0=getJSONHttp(link0,"UTF-8");
+			resultJSON=getJSONHttp(link,"UTF-8");
+			FileOperator.saveFile(resultJSON, this.DATA_PATH,this.DATA_NAME);
+			FileOperator.saveFile(resultJSON0, this.DATA_PATH,this.DATA_DETAIL_NAME);
+			parseJASONObject(resultJSON,resultJSON0);
+			updateContent();
+		}catch(Exception e){
 			e.printStackTrace();
-			Log.e("知雨天气", "获取" + cityStr + "天气失败：" + e.getLocalizedMessage());
+			Toast.makeText(MainActivity.this,"获取天气信息失败", Toast.LENGTH_SHORT).show();
 		}
+			
 		
 		
 		
 
 	}
-	public void updateContent(){
-		final StringBuffer sb = new StringBuffer();
-		sb.append(weatherObject.getCity());
-		sb.append("<br/>日期：" + weatherObject.getCurrentDate());
-		sb.append("<br/>白天：" + weatherObject.getDayStatus());
-		sb.append("<br/>夜间："+weatherObject.getNightStatus());
-		sb.append("<br/>低温：" + weatherObject.getLowTemprature() + "℃");
-		sb.append("<br/>高温：" + weatherObject.getHighTemprature() + "℃");
+	
+	private String getValidDistrictName(String district) {
+		String result;
+		int i=2;
+		while(true){
+			try{
+			if(districtMap.containsKey(result=district.substring(0, i))){
+				break;
+			}
+			else{
+				i++;
+			}
+			}catch(Exception e){
+				getValidDistrictName(myLocation.getCity());
+			}
+			
+		}
+		return result;
+	}
+private String getJSONHttp(String link,String charSet) throws Exception{
+	HttpGet httpRequest = new HttpGet(link);
+	HttpClient httpclient = new DefaultHttpClient();
+	HttpResponse httpResponse;
+	httpResponse = httpclient.execute(httpRequest);
+
+	if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+		return  EntityUtils.toString(httpResponse.getEntity(),
+				"UTF-8");
+	}
+	else{
+		throw new Exception("连接获取天气信息失败");
+		
+	}
+	
+	
+	
+}
+
+
+	public void updateContent() throws JSONException{
+		JSONObject temp=weatherObject.getJSONObject("weatherinfo");
+		JSONObject temp0=weatherObjectDetail.getJSONObject("weatherinfo");
+		StringBuffer sb=new StringBuffer();
+		sb.append("<h2>"+temp.getString("city")+"</h2>");
+		sb.append(temp.getString("temp")+"℃<br/>");
+		sb.append(temp0.getString("date_y")+" "+temp0.getString("week")
+				+"<br/>");
+		sb.append("天气："+temp0.getString("weather1")+"<br/>");
+		sb.append("温度："+temp0.getString("temp1")+"<br/>");
+		sb.append("风向："+temp.getString("WD")+"<br/>");
+		sb.append("风力："+temp0.getString("fl1")+"<br/>");
+		sb.append("湿度："+temp.getString("SD")+"<br/>");
+		sb.append("更新时间："+temp.getString("time"));
 		content.setText(Html.fromHtml(sb.toString()));
-		Date date=new Date();
-		int hour=date.getHours();
-		int rsid=R.drawable.notclear;
-		if(hour>=6 && hour<18){
-			String weather=weatherObject.getDayStatus();
-			if(pictrueMap1.containsKey(weather)){
-				rsid=pictrueMap1.get(weather);
-			}
+		Date time=new Date();
+		int resid=R.drawable.notclear;
+		try{
+		
+		if(time.getHours()>=6 && time.getHours()<18 ){
+			resid=pictrueMap1.get(temp0.getString("weather1"));
 		}
-		else
+		else 
 		{
-			String weather=weatherObject.getNightStatus();
-			if(pictrueMap2.containsKey(weather)){
-				rsid=pictrueMap2.get(weather);
-			}
+			resid=pictrueMap2.get(temp0.getString("weather1"));
 		}
-		image.setImageResource(rsid);
+		}catch(Exception e){
+			e.printStackTrace();
+			resid=R.drawable.notclear;
+		}
+		image.setImageResource(resid);
 	}
 
-	public void parseXml(String xml) throws Exception {
-
-		DocumentBuilderFactory factory = null;
-		DocumentBuilder builder = null;
-		Document document = null;
-		InputStream inputStream = null;
-		factory = DocumentBuilderFactory.newInstance();
-		builder = factory.newDocumentBuilder();
-		inputStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
-		document = builder.parse(inputStream);
-		// 找到根Element
-		Element root = document.getDocumentElement();
-		NodeList nodes = root.getElementsByTagName("Weather");
-			Node node = nodes.item(0);
-			NodeList childs = node.getChildNodes();
-			for (int j = 0; j < childs.getLength(); j++) {
-				Node element = childs.item(j);
-				if ("city".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setCity(element.getTextContent());
-				}
-				if ("status1".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setDayStatus(element.getTextContent());
-				}
-				if ("status2".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setNightStatus(element.getTextContent());
-				}
-				if ("direction1".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setWindDayDrection(element.getTextContent());
-				}
-				if ("direction2".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject
-							.setWindNightDrection(element.getTextContent());
-				}
-				if ("power1".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setWindDayPower(element.getTextContent());
-				}
-				if ("power2".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setWindNightPower(element.getTextContent());
-				}
-				if ("temperature1".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setHighTemprature(Integer.parseInt(element
-							.getTextContent()));
-				}
-				if ("temperature2".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					weatherObject.setLowTemprature(Integer.parseInt(element
-							.getTextContent()));
-				}
-				if ("savedate_weather".equals(element.getNodeName().toString()
-						.toLowerCase())) {
-					String dates[]=element.getTextContent().split("-");
-					weatherObject.setCurrentDate(dates[0]+"年"+dates[1]+"月"+dates[2]+"日");
-				}
-			}
+	public void parseJASONObject(String JASON,String JASON1) throws Exception {
+		
+		weatherObject=new JSONObject(JASON);
+		weatherObjectDetail=new JSONObject(JASON1);
 		
 	}
 	private void init() {
 		pictrueMap1=new HashMap<String, Integer>();
 		pictrueMap2=new HashMap<String, Integer>();
-		
+		districtMap=new HashMap<String, String>();
 		pictrueMap1.put("大雨", R.drawable.dby);
 		pictrueMap1.put("暴雨", R.drawable.dby);
 		pictrueMap1.put("冻雨", R.drawable.dy);
 		pictrueMap1.put("大雪", R.drawable.dx);
 		pictrueMap1.put("暴雪", R.drawable.bx);
 		pictrueMap1.put("多云", R.drawable.dy);
+		pictrueMap1.put("多云转晴",R.drawable.dyq);
+		pictrueMap1.put("晴转多云",R.drawable.dyq);
 		pictrueMap1.put("雷阵雨", R.drawable.lzy);
 		pictrueMap1.put("沙尘暴", R.drawable.scb);
 		pictrueMap1.put("雾", R.drawable.w);
@@ -416,6 +403,8 @@ public class MainActivity extends FinalActivity {
 		pictrueMap2.put("多云", R.drawable.dy0);
 		pictrueMap2.put("雷阵雨", R.drawable.lzy0);
 		pictrueMap2.put("沙尘暴", R.drawable.scb);
+		pictrueMap2.put("多云转晴",R.drawable.dyq0);
+		pictrueMap2.put("晴转多云",R.drawable.dyq0);
 		pictrueMap2.put("雾", R.drawable.w);
 		pictrueMap2.put("小雪", R.drawable.xx);
 		pictrueMap2.put("小雨", R.drawable.xy);
@@ -425,21 +414,62 @@ public class MainActivity extends FinalActivity {
 		pictrueMap2.put("中雨", R.drawable.zhy);
 		pictrueMap2.put("中雪", R.drawable.zx);
 		pictrueMap2.put("阵雨", R.drawable.zy0);
+		districtMap.putAll((new DistrictMapClass()).getDistric());
+			
 		
-		String xml="";
-		File f=new File(DATA_PATH);
+		
+		String json="";
+		String json0="";
+		File f=new File(DATA_PATH+this.DATA_NAME);
+		File f0=new File(DATA_PATH+this.DATA_DETAIL_NAME);
+		System.out.print("-----------------"+(f.exists() && f0.exists()));
 		if(f.exists()){
-			xml=FileOperator.readFile(DATA_PATH+this.XML_NAME);
-			try {
-				System.out.println(xml);
-				parseXml(xml);
-				updateContent();
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-				Toast.makeText(MainActivity.this, "尚未获得天气信息，请定位并刷新天气信息", Toast.LENGTH_SHORT).show();
+			json=FileOperator.readFile(DATA_PATH+this.DATA_NAME);
+			if(f0.exists()){
+			     json0=FileOperator.readFile(DATA_PATH+this.DATA_DETAIL_NAME);
+			     try {
+						parseJASONObject(json,json0);
+						updateContent();
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+						Toast.makeText(MainActivity.this, "尚未获得天气信息，请定位并刷新天气信息", Toast.LENGTH_SHORT).show();
+					}
 			}
+			
 		}		
 	}
+	/*
+     * 打开设置网络界面
+     * */
+    public static void setNetworkMethod(final Context context){
+        //提示对话框
+        AlertDialog.Builder builder=new Builder(context);
+        builder.setTitle("网络设置提示").setMessage("网络连接不可用,是否进行设置?").setPositiveButton("设置", new DialogInterface.OnClickListener() {
+            
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                Intent intent=null;
+                //判断手机系统的版本  即API大于10 就是3.0或以上版本 
+                if(android.os.Build.VERSION.SDK_INT>10){
+                    intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+                }else{
+                    intent = new Intent();
+                    ComponentName component = new ComponentName("com.android.settings","com.android.settings.WirelessSettings");
+                    intent.setComponent(component);
+                    intent.setAction("android.intent.action.VIEW");
+                }
+                context.startActivity(intent);
+            }
+        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                dialog.dismiss();
+            }
+        }).show();
+    }
 
 }

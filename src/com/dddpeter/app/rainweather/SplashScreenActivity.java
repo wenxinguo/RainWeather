@@ -1,6 +1,15 @@
 package com.dddpeter.app.rainweather;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Properties;
+
+import com.dddpeter.app.rainweather.util.FileOperator;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -25,7 +34,7 @@ public class SplashScreenActivity extends Activity {
 			    startActivity(intent);
 			    SplashScreenActivity.this.finish();    // 结束启动动画界面
 			   }
-			  }, 2000);    //启动动画持续3秒钟
+			  }, 500);    //启动动画持续1.5秒钟
 		 }
 
 	@Override
