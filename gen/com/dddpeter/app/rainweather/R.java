@@ -113,8 +113,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int weather_content=0x7f070002;
     }
     public static final class style {
-        /**   <item name="@android:windowAnimationStyle">@style/activty_hyperspace_in_out</item> 
-         */
         public static final int FullscreenTheme=0x7f080000;
         public static final int activty_hyperspace_in_out=0x7f080002;
         public static final int style_translate_rotat=0x7f080003;
