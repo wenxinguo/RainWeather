@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/skyblue"
-    tools:context=".SplashScreenActivity" 
-     android:gravity="center">
+    android:background="@color/myblue"
+    android:gravity="center"
+    tools:context=".SplashScreenActivity" >
 
     <ImageView
         android:id="@+id/imageView1"
@@ -12,6 +12,7 @@
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:gravity="center"
+        android:contentDescription="@string/app_name"
         android:src="@drawable/rain_sun" />
 
     <TextView

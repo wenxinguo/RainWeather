@@ -1,12 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!--
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    -->
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- API 14 theme customizations can go here. -->
+    <style name="FullscreenTheme" parent="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@drawable/bg</item>
+         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>  
+        <!--  <item name="@android:windowAnimationStyle">@style/activty_hyperspace_in_out</item> -->
+         <item name="@android:windowAnimationStyle">@style/style_translate_rotat</item>
     </style>
-
+    <style name="tabs_bottom">
+       <item name="android:textSize">10sp</item> 
+       <item name="android:layout_weight">1</item> 
+       <item name="android:button">@null</item> 
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#ffffffff</item>
+      <item name="android:gravity">center</item>
+      <item name="android:background">@drawable/home_btn_bg</item>
+    </style>
+    <style name="activty_hyperspace_in_out"> 
+        <item name="@android:activityOpenEnterAnimation">@anim/hyperspace_in</item>
+        <item name="@android:activityOpenExitAnimation">@anim/hyperspace_out</item>  
+        <item name="@android:activityCloseEnterAnimation">@anim/hyperspace_in</item>   
+        <item name="@android:activityCloseExitAnimation">@anim/hyperspace_out</item>  
+    </style>  
+        <style name="style_translate_rotat"> 
+        <item name="@android:activityOpenEnterAnimation">@anim/scale_translate_rotate</item>
+        <item name="@android:activityOpenExitAnimation">@anim/scale_translate_rotate</item>  
+        <item name="@android:activityCloseEnterAnimation">@anim/scale_translate_rotate</item>   
+        <item name="@android:activityCloseExitAnimation">@anim/scale_translate_rotate</item>  
+    </style>  
 </resources>

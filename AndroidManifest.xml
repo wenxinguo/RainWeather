@@ -1,33 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dddpeter.app.rainweather"
-    android:versionCode="2"
-    android:versionName="@string/ver" android:installLocation="auto">
+    android:installLocation="auto"
+    android:versionCode="3"
+    android:versionName="@string/ver" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="17" />
-   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
-	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
-	<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"></uses-permission>
-	<uses-permission android:name="android.permission.READ_LOGS"></uses-permission>
-	<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.READ_LOGS" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.VIBRATE" >
+    </uses-permission>
+
+    <permission android:name="android.permission.BAIDU_LOCATION_SERVICE" >
+    </permission>
+
+    <uses-permission android:name="android.permission.BAIDU_LOCATION_SERVICE" >
+    </uses-permission>
+
     <application
+        android:name="com.dddpeter.app.rainweather.object.ParamApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/FullscreenTheme" >
         <activity
             android:name="com.dddpeter.app.rainweather.SplashScreenActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme" >
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,12 +54,42 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.dddpeter.app.rainweather.MainActivity"
-            android:label="@string/app_name" >
+            android:name="com.dddpeter.app.rainweather.TodayActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
         </activity>
-        <service android:name="com.baidu.location.f" android:enabled="true"
-			android:process=":remote">
-		</service>
+
+      
+
+        <activity
+            android:name="com.dddpeter.app.rainweather.IndexActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
+        </activity>
+
+        <activity
+            android:name="com.dddpeter.app.rainweather.RecentActivity"
+            android:label="@string/title_activity_recent" >
+        </activity>
+        <activity
+            android:name="org.achartengine.GraphicalActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.dddpeter.app.rainweather.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:launchMode="singleTop" >
+        </activity>
+        <activity
+            android:name="com.dddpeter.app.rainweather.AirActivity"
+            android:label="@string/title_activity_air"
+            android:launchMode="singleTop" >
+        </activity>
+          <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:permission="android.permission.BAIDU_LOCATION_SERVICE"
+            android:process=":remote" >
+        </service>
     </application>
 
 </manifest>

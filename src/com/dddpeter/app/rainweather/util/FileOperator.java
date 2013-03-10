@@ -35,9 +35,11 @@ public class FileOperator {
 			try {
 				if(null!=fos)
 				fos.close();
+				System.gc();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
 		}
 	}
 	
@@ -70,6 +72,7 @@ public class FileOperator {
 					baos.close();
 					if(null!=fis)
 					fis.close();
+					System.gc();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

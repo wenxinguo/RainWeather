@@ -1,0 +1,77 @@
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/tabhost"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/myblue" >
+
+    <LinearLayout
+    	android:orientation="vertical"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent">
+
+    	<TabWidget
+    	    android:id="@android:id/tabs"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:layout_weight="0.0"
+    	    android:background="@color/myblue"
+    	    android:visibility="gone" />
+
+    	<FrameLayout
+    	    android:id="@android:id/tabcontent"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="fill_parent"
+    	    android:layout_weight="1"
+    	    android:background="@color/myblue" >
+    	    
+    	</FrameLayout>
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:background="@drawable/maintab_toolbar_bg"
+    		android:orientation="horizontal"
+    		android:layout_width="fill_parent"
+    		android:layout_height="fill_parent"
+    		android:gravity="center_vertical"
+    		android:layout_gravity="bottom"
+    		android:layout_weight="5.9">
+
+        <RadioButton
+            android:id="@+id/radio0"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:checked="true"
+            android:text="@string/tab1"
+             style="@style/tabs_bottom"
+             android:drawableTop="@drawable/home"
+             />
+
+        <RadioButton
+            android:id="@+id/radio1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="@string/tab2" 
+              style="@style/tabs_bottom"
+              android:drawableTop="@drawable/me"
+            />
+
+        <RadioButton
+            android:id="@+id/radio2"
+            
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="@string/tab3" 
+              style="@style/tabs_bottom"
+              android:drawableTop="@drawable/air"/>
+
+        <RadioButton
+            android:id="@+id/radio3"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+             android:text="@string/tab4" 
+             style="@style/tabs_bottom"             
+            android:drawableTop="@drawable/recent"
+           />
+
+    </RadioGroup>
+    </LinearLayout>
+</TabHost>
