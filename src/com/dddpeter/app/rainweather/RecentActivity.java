@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import net.tsz.afinal.FinalActivity;
 import net.tsz.afinal.annotation.view.ViewInject;
@@ -17,8 +18,6 @@ import org.achartengine.renderer.XYSeriesRenderer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.dddpeter.app.rainweather.object.ParamApplication;
-
 import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.os.Bundle;
@@ -29,6 +28,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dddpeter.app.rainweather.object.ParamApplication;
 
 public class RecentActivity extends  FinalActivity{
 	@ViewInject(id = R.id.recent)
@@ -79,8 +80,9 @@ public class RecentActivity extends  FinalActivity{
 	protected void updateContent(JSONObject weatherObjectDetail) throws JSONException, ParseException {
 		JSONObject temp0=weatherObjectDetail.getJSONObject("weatherinfo");
 		String todayStr=temp0.getString("date_y");
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日");
-		SimpleDateFormat sdf1=new SimpleDateFormat("MM月dd日");			
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日",Locale.CHINESE);
+		SimpleDateFormat sdf1=new SimpleDateFormat("MM月dd日",Locale.CHINESE);	
+		String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
 		Date today=sdf.parse(todayStr.trim());
 		String[] tempratures=new String[5];
 		String[] weathers=new String[5];
@@ -100,7 +102,9 @@ public class RecentActivity extends  FinalActivity{
 			weathers[i]=temp0.getString("weather"+(i+2));
 			cal.set(Calendar.DAY_OF_MONTH,cal.get(Calendar.DAY_OF_MONTH)+1);
 			days[i]=sdf1.format(cal.getTime());
-			 renderer.addXTextLabel(i+1, days[i]+"\n"+weathers[i]);
+			int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
+	        if (w < 0) {w = 0;  }
+			 renderer.addXTextLabel(i+1, days[i]+"\n"+weekDays[w]+"\n"+weathers[i]);
 			 if(Integer.parseInt(temps[1].trim())>Integer.parseInt(temps[0].trim())){
 				 seriesHigh.add(i+1, Integer.parseInt(temps[1].trim()));
 				 seriesLow.add(i+1, Integer.parseInt(temps[0].trim()));
@@ -162,7 +166,8 @@ public class RecentActivity extends  FinalActivity{
         View view = ChartFactory.getLineChartView(this, dataset, renderer);  
         view.setBackgroundColor(this.getResources().getColor(R.color.myblue));
       
-       RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(
+       @SuppressWarnings("deprecation")
+	RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(
     		   RelativeLayout.LayoutParams.FILL_PARENT,
     		   RelativeLayout.LayoutParams.FILL_PARENT
 		);

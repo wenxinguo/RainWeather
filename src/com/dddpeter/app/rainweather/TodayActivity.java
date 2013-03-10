@@ -3,29 +3,24 @@ package com.dddpeter.app.rainweather;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import net.tsz.afinal.FinalActivity;
 import net.tsz.afinal.annotation.view.ViewInject;
 
-import com.dddpeter.app.rainweather.object.ParamApplication;
-import com.dddpeter.app.rainweather.util.FileOperator;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
@@ -33,6 +28,9 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dddpeter.app.rainweather.object.ParamApplication;
+import com.dddpeter.app.rainweather.util.FileOperator;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -56,7 +54,7 @@ public class TodayActivity extends FinalActivity{
 
 	private JSONObject weatherObject=new JSONObject();
 	private JSONObject weatherObjectDetail=new JSONObject();
-	private final String DATA_PATH="/sdcard/tmp/";
+	private final String DATA_PATH=Environment.getExternalStorageDirectory().getPath()+"/tmp/";
 	private final String DATA_NAME="weather.json";
 	private final String DATA_DETAIL_NAME="weather_detail.json";
 	
@@ -126,9 +124,9 @@ public class TodayActivity extends FinalActivity{
 			Toast.makeText(TodayActivity.this, "刷新天气面板", Toast.LENGTH_SHORT).show();
 			updateRunner.run();	
 		}
-		ActivityManager mActivityManager = (ActivityManager)getSystemService(ACTIVITY_SERVICE); 
+		/*ActivityManager mActivityManager = (ActivityManager)getSystemService(ACTIVITY_SERVICE); 
 		List<RunningServiceInfo> list=mActivityManager.getRunningServices(50);
-		/*for(int i=0;i<list.size();i++){
+		for(int i=0;i<list.size();i++){
 			if(list.get(i).service.getClassName().contains("com.baidu.location.f")){
 				Intent  intent = new Intent();  
 				//设置部件  

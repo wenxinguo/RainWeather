@@ -1,18 +1,10 @@
 package com.dddpeter.app.rainweather;
 
 
-import java.util.HashMap;
-
-import com.dddpeter.app.rainweather.object.ParamApplication;
-import com.dddpeter.app.rainweather.util.FileOperator;
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.os.Handler;
 
 public class SplashScreenActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {

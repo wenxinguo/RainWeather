@@ -55,7 +55,6 @@ public class FileOperator {
 	public static String readFile(String filePath){
 		FileInputStream fis = null;
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
-		byte[] mByte = new byte[512];
 		try {
 			fis = new FileInputStream(new File(filePath));
 			int x;

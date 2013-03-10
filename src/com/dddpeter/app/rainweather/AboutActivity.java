@@ -3,9 +3,7 @@ package com.dddpeter.app.rainweather;
 import net.tsz.afinal.FinalActivity;
 import net.tsz.afinal.annotation.view.ViewInject;
 import android.os.Bundle;
-import android.app.Activity;
 import android.text.Html;
-import android.view.Menu;
 import android.widget.TextView;
 
 public class AboutActivity extends FinalActivity {
