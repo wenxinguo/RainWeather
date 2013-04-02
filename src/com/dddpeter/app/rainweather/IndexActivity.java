@@ -3,6 +3,7 @@ package com.dddpeter.app.rainweather;
 
 
 import java.io.File;
+import java.util.Iterator;
 
 import net.tsz.afinal.FinalActivity;
 import net.tsz.afinal.annotation.view.ViewInject;
@@ -14,6 +15,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.AlertDialog;
@@ -309,9 +311,15 @@ private void prepareIntent() {
 				Elements currentStatus=doc.select("div.top_info");
 				Elements adviceInfos=doc.select("div.top_info1");
 				System.out.println(adviceInfos.get(0).text());
-				
-				resultJSON1=currentStatus.first().text()+"\r\n"+adviceInfos.first().text().toString().replace("[切换城市]", "")+"\r\n"
-				+adviceInfos.get(1).text()+"\r\n"+adviceInfos.get(2).text();
+				 Iterator<Element> advices=adviceInfos.iterator();
+				resultJSON1=currentStatus.first().text()+"\r\n";
+				while(advices.hasNext()){
+					String item=advices.next().text();
+					if(item.contains("切换城市")){
+						item=item.replace("[切换城市]", "");
+					}
+					resultJSON1=resultJSON1+item+"\r\n";
+				}
 			}
 			}
 			else

@@ -30,10 +30,10 @@
         android:background="@drawable/maintab_toolbar_bg"
     		android:orientation="horizontal"
     		android:layout_width="fill_parent"
-    		android:layout_height="fill_parent"
+    		android:layout_height="70dip"
     		android:gravity="center_vertical"
     		android:layout_gravity="bottom"
-    		android:layout_weight="5.9">
+    		>
 
         <RadioButton
             android:id="@+id/radio0"
